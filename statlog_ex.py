@@ -19,7 +19,7 @@ hearts = datasets.standardize_hearts(dataset)
 X = hearts['featureset']
 ytrue = hearts['target']
 
-print(len(ytrue))
+# print(len(ytrue))
 # label a few points
 perc = .20
 labeled_N = math.floor(len(ytrue) * perc)
@@ -32,16 +32,24 @@ random_labeled_points = list(np.random.choice(np.where(ytrue == 0)[0], int(nsamp
 ys[random_labeled_points] = ytrue[random_labeled_points]
 
 # supervised score
-basemodel = SGDClassifier(loss='log', penalty='l1', tol=1e-3, max_iter=1000) # scikit logistic regression
-basemodel.fit(X[random_labeled_points, :], ys[random_labeled_points])
-print ("supervised log.reg. score", basemodel.score(X, ytrue))
+# basemodel = SGDClassifier(loss='log', penalty='l1', tol=1e-3, max_iter=1000) # scikit logistic regression
+# basemodel.fit(X[random_labeled_points, :], ys[random_labeled_points])
+# print ("supervised log.reg. score", basemodel.score(X, ytrue))
+kernel = "rbf"
+Xsupervised = X[ys!=-1, :]
+ysupervised = ys[ys!=-1]
+
+lbl = "Purely supervised SVM:"
+print (lbl)
+basemodel = sklearn.svm.SVC(kernel=kernel, probability=True)
+basemodel.fit(Xsupervised, ysupervised)
+evaluate(basemodel, X, ys, ytrue, lbl)
+
 #
 # fast (but naive, unsafe) self learning framework
 ssmodel = SelfLearningModel(basemodel)
 ssmodel.fit(X, ys)
 print ("self-learning log.reg. score", ssmodel.score(X, ytrue))
-
-kernel = "linear"
 
 Xsupervised = X[ys!=-1, :]
 ysupervised = ys[ys!=-1]

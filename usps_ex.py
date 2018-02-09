@@ -16,11 +16,10 @@ usps = datasets.standardize_usps(dataset)
 
 X = usps['featureset']
 ytrue = usps['target']
-uniq_labels = set(ytrue)
-print(set(ytrue))
 
-print(ytrue, len(ytrue))
-# label a few points
+uniq_labels = set(ytrue)
+
+# # label a few points
 perc = .5
 labeled_N = math.floor(len(ytrue) * perc)
 
@@ -33,16 +32,26 @@ for label in uniq_labels:
 ys[random_labeled_points] = ytrue[random_labeled_points]
 
 # supervised score
-basemodel = SGDClassifier(loss='log', penalty='l1', tol=1e-3, max_iter=1000) # scikit logistic regression
-basemodel.fit(X[random_labeled_points, :], ys[random_labeled_points])
-print ("supervised log.reg. score", basemodel.score(X, ytrue))
+kernel = "rbf"
+Xsupervised = X[ys!=-1, :]
+ysupervised = ys[ys!=-1]
+
+lbl = "Purely supervised SVM:"
+print (lbl)
+basemodel = sklearn.svm.SVC(kernel=kernel, probability=True)
+basemodel.fit(Xsupervised, ysupervised)
+evaluate(basemodel, X, ys, ytrue, lbl)
+
+# basemodel = SGDClassifier(loss='hinge', penalty='l1', tol=1e-3, max_iter=500) # scikit logistic regression
+# basemodel.fit(X[random_labeled_points, :], ys[random_labeled_points])
+# print ("supervised log.reg. score", basemodel.score(X, ytrue))
 #
 # # fast (but naive, unsafe) self learning framework
 ssmodel = SelfLearningModel(basemodel)
 ssmodel.fit(X, ys)
 print ("self-learning log.reg. score", ssmodel.score(X, ytrue))
 
-kernel = "linear"
+kernel = "rbf"
 
 Xsupervised = X[ys!=-1, :]
 ysupervised = ys[ys!=-1]
