@@ -21,25 +21,28 @@ def pick_toptwo_labels(inmem_dataset):
     featureset = featureset[np.where((ytrue == top_2[0]) | (ytrue == top_2[1]))]
     target = ytrue[np.where((ytrue == top_2[0]) | (ytrue == top_2[1]))]
 
-    target[target == top_2[0]] = 0
-    target[target == top_2[1]] = 1
+    # target[target == top_2[0]] = 0
+    # target[target == top_2[1]] = 1
 
     return featureset, target
 
 
-def pick_labels(inmem_dataset, labels_to_keep=[1,2]):
+def pick_any2_labels(inmem_dataset, labels_to_keep=[1,2]):
     ytrue = inmem_dataset['target']
     featureset = inmem_dataset['data']
 
     uniq_target = set(ytrue)
-    print(uniq_target)
+    # print(uniq_target)
 
     if len(labels_to_keep) != 2:
         print("The function only supports two variables...")
         return
 
     featureset = featureset[np.where((ytrue == labels_to_keep[0]) | (ytrue == labels_to_keep[1]))]
+
     target = ytrue[np.where((ytrue == labels_to_keep[0]) | (ytrue == labels_to_keep[1]))]
+
+    print(set(target))
 
     target[target == labels_to_keep[0]] = 0
     target[target == labels_to_keep[1]] = 1
@@ -70,7 +73,7 @@ def standardize_hearts(ds_path_to_file):
 
     return dataset
 
-def standardize_pendigits(ds_path_to_file):
+def standardize_pendigits(ds_path_to_file, labels_to_keep=[1,2]):
 
     # global inmemory_dataset
     data = np.genfromtxt(ds_path_to_file,
@@ -85,19 +88,21 @@ def standardize_pendigits(ds_path_to_file):
 
     dataset = {"data":inmem_dataset[:, 0:-1], "target":inmem_dataset[:, -1]}
 
-    featureset, target = pick_toptwo_labels(dataset)
+    featureset, target = pick_any2_labels(dataset, labels_to_keep)
 
     dataset = {"featureset": featureset, "target":target}
 
     return dataset
 
-def standardize_usps(ds_path_to_file):
+def standardize_usps(ds_path_to_file, labels_to_keep=[1,2]):
     inmem_dataset = fetch_mldata(ds_path_to_file)
 
 
     # featureset, target = pick_toptwo_labels(inmem_dataset)
 
-    featureset, target = pick_labels(inmem_dataset)
+    print(set(inmem_dataset['target']))
+
+    featureset, target = pick_any2_labels(inmem_dataset, labels_to_keep)
 
     dataset = {"featureset": featureset, "target": target}
 
